@@ -1,4 +1,4 @@
-# Claude Chat Replay
+# LLM Chat Replay
 
 A React application that provides a visual replay of Claude chat transcripts with typing animation and playback controls.
 
