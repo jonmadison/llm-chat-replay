@@ -16,7 +16,10 @@ A React application that provides a visual replay of Claude chat transcripts wit
 
 ### Prerequisites
 
-1. Set up an MCP filesystem server or similar service that can write to your filesystem
+1. Set up an MCP filesystem server:
+   - OSX users can get started quickly with [mcpkit](https://github.com/jonmadison/mcpkit)
+   - Provides a set of useful MCP servers including filesystem access
+
 2. When chatting with Claude, save your transcript:
    ```
    Prompt Claude: "please save the full transcript of this chat as a markdown file"
