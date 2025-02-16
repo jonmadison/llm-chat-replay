@@ -190,7 +190,7 @@ const App = () => {
   }, [currentMessageIndex, messages.length]);
 
   return (
-    <div className="min-h-screen bg-[#668092] font-libre">
+    <div className="min-h-screen bg-[#5F728C] font-libre">
       <div className="max-w-4xl mx-auto p-4">
         <div className="flex justify-between items-center mb-4">
           <div>
@@ -210,7 +210,7 @@ const App = () => {
         <div 
           ref={chatContainerRef}
           onScroll={handleScroll}
-          className={`h-[600px] rounded-lg border border-[#2E3941] bg-[#2E3941] overflow-y-auto mb-4 relative
+          className={`h-[70vh] rounded-lg border border-transparent bg-transparent overflow-y-auto mb-4 relative
             ${!hasTranscript ? 'flex items-center justify-center' : ''}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -248,7 +248,7 @@ const App = () => {
                       className={`max-w-[80%] rounded-chat px-6 py-3 ${
                         message.speaker === "Human"
                           ? "bg-[#ddd] text-[#222]"
-                          : "bg-[#9EECFF] text-[#222]"
+                          : "bg-[#efffFF] text-[#222]"
                       }`}
                     >
                       <div className={`text-xs mb-1 font-medium ${
