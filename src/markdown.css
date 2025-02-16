@@ -1,0 +1,64 @@
+.markdown-content {
+  @apply text-sm;
+}
+
+.markdown-content p {
+  @apply mb-2;
+}
+
+.markdown-content p:last-child {
+  @apply mb-0;
+}
+
+.markdown-content code {
+  @apply px-1 py-0.5 bg-black/20 rounded font-mono text-xs;
+}
+
+.markdown-content pre {
+  @apply mb-2 p-2 bg-black/20 rounded overflow-x-auto;
+}
+
+.markdown-content pre code {
+  @apply p-0 bg-transparent;
+}
+
+.markdown-content ul {
+  @apply ml-4 mb-2 list-disc;
+}
+
+.markdown-content ol {
+  @apply ml-4 mb-2 list-decimal;
+}
+
+.markdown-content h1, 
+.markdown-content h2, 
+.markdown-content h3, 
+.markdown-content h4 {
+  @apply font-bold mb-2;
+}
+
+.markdown-content h1 { @apply text-lg; }
+.markdown-content h2 { @apply text-base; }
+.markdown-content h3 { @apply text-sm; }
+.markdown-content h4 { @apply text-xs; }
+
+.markdown-content blockquote {
+  @apply border-l-4 border-gray-700 pl-4 italic my-2;
+}
+
+.markdown-content a {
+  @apply text-blue-400 hover:underline;
+}
+
+.markdown-content table {
+  @apply w-full mb-2;
+}
+
+.markdown-content th,
+.markdown-content td {
+  @apply border border-gray-700 px-2 py-1;
+}
+
+.markdown-content th {
+  @apply bg-black/20;
+}
