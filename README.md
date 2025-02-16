@@ -1,6 +1,7 @@
 # LLM Chat Replay
 
-A React application that provides a visual replay of Claude chat transcripts with typing animation and playback controls.
+A React application that provides a visual replay of LLM chat transcripts with typing animation and playback controls. Created for Claude, but should work with any markdown chat export with a format like in the src/public/transcripts/chat-replay-development.md file.
+
 
 ## Features
 
