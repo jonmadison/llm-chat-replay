@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { PlayIcon, PauseIcon, Rewind, FastForward, Upload } from 'lucide-react'
+import { PlayIcon, PauseIcon, Rewind, FastForward, Upload, SkipBack, SkipForward } from 'lucide-react'
 import MarkdownContent from './components/MarkdownContent'
 import StreamingText from './components/StreamingText'
 import SpeakerIcon from './components/SpeakerIcon'
@@ -169,6 +169,33 @@ const App = () => {
     setPlaybackSpeed(speed);
   };
 
+  const jumpToStart = () => {
+    setCurrentMessageIndex(0);
+    setIsPlaying(false);
+    userScrolledRef.current = false;
+    setMessages(prev => prev.map(msg => ({ 
+      ...msg, 
+      isVisible: false,
+      isComplete: false 
+    })));
+    setProgress(0);
+    setTimeout(scrollToBottom, 0);
+  };
+
+  const jumpToEnd = () => {
+    const lastIndex = messages.length;
+    setCurrentMessageIndex(lastIndex);
+    setIsPlaying(false);
+    userScrolledRef.current = false;
+    setMessages(prev => prev.map(msg => ({ 
+      ...msg, 
+      isVisible: true,
+      isComplete: true 
+    })));
+    setProgress(100);
+    setTimeout(scrollToBottom, 0);
+  };
+
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newProgress = parseInt(e.target.value);
     const newIndex = Math.floor((newProgress / 100) * messages.length);
@@ -292,6 +319,14 @@ const App = () => {
 
             <div className="flex justify-center items-center gap-4">
               <button 
+                onClick={jumpToStart}
+                className="p-2 text-neutral-200 hover:text-white"
+                aria-label="Skip to beginning"
+              >
+                <SkipBack size={20} />
+              </button>
+              
+              <button 
                 onClick={() => handleSpeedChange(Math.max(0.5, playbackSpeed / 2))}
                 className="p-2 text-neutral-200 hover:text-white disabled:opacity-50"
                 disabled={playbackSpeed <= 0.5}
@@ -322,6 +357,14 @@ const App = () => {
                 disabled={playbackSpeed >= 4}
               >
                 <FastForward size={20} />
+              </button>
+              
+              <button 
+                onClick={jumpToEnd}
+                className="p-2 text-neutral-200 hover:text-white"
+                aria-label="Skip to end"
+              >
+                <SkipForward size={20} />
               </button>
             </div>
 
