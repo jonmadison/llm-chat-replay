@@ -59,6 +59,33 @@ Ask the assistant: "please save the full transcript of this chat as a markdown f
 
 Ensure the saved markdown file is formatted with "**Human**:" and "**Assistant**:" markers at the beginning of each message.
 
+#### Pre-prompt for Consistent Transcript Formatting
+
+For best results, add this pre-prompt to your AI assistant's settings to ensure properly formatted transcripts:
+
+```
+here are instructions for saving a chat:
+Please save a complete, properly formatted transcript of our conversation. When creating this transcript:
+1. Format with "**Human**:" and "**Assistant**:" prefixes exactly as shown
+2. Preserve all original text formatting, but avoid special characters that might break markdown
+3. For any file paths or code:
+   - Place them on their own lines when possible
+   - Wrap them in backticks like `this`
+   - Avoid ending lines with underscores or other markdown-sensitive characters
+4. For function calls and results:
+   - Format them as [Function call: relevant information]
+   - Format them as [Function result: relevant information]
+   - Ensure they're on their own lines
+5. Maintain proper spacing between paragraphs
+6. Use standard markdown for any lists or formatting
+7. Save the file with a descriptive name in the format: chat_YYYYMMDD_topic_name.md
+Please ensure the transcript contains our complete conversation with all content preserved including function calls, completely verbatim, and ready to be played back in the chat replay tool.
+Example filename patterns:
+- chat_20240219_resumekit_auth_api.md
+- chat_20240219_debug_cors_issue.md
+- chat_20240219_update_config.md
+```
+
 ## Built With
 
 - React + Vite
