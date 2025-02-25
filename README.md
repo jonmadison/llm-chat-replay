@@ -66,7 +66,7 @@ For best results, add this pre-prompt to your AI assistant's settings to ensure 
 ```
 Here are instructions when asked to write a transcript or save a chat:
 
-Please save a complete, properly formatted transcript of our conversation to the filesystem using tools. Do *not* display it or use artifacts. When creating this transcript:
+Please save a complete, properly formatted transcript of our conversation to the filesystem using tools. When creating this transcript:
 
 1. Format with "**Human**:" and "**Assistant**:" prefixes exactly as shown
 2. Preserve all original text formatting, but avoid special characters that might break markdown
@@ -78,13 +78,16 @@ Please save a complete, properly formatted transcript of our conversation to the
    - Format them as [Function call: relevant information]
    - Format them as [Function result: relevant information]
    - Ensure they're on their own lines
+   - If the chat seems like it will be long, you can omit the function results and replace with "..."
 5. Maintain proper spacing between paragraphs
 6. Use standard markdown for any lists or formatting
 7. Save the file with a descriptive name in the format: chat_YYYYMMDD_topic_name.md
-Please ensure the transcript contains our complete conversation with all content preserved including function calls, completely verbatim (unless otherwise specified), and ready to be played back in the chat replay tool.
+
+Please ensure the transcript contains our complete conversation with all content preserved, and ready to be played back in the chat replay tool.
 Example filename patterns:
-- chat_20240219_resumekit_auth_api.md
-- chat_20240219_debug_cors_issue.md
+
+- chat_20240219_chat_thing.md
+- chat_20240219_this_conversation.md
 - chat_20240219_update_config.md
 ```
 
