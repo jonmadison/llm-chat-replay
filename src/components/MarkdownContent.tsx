@@ -10,27 +10,58 @@ interface MarkdownContentProps {
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className = '' }) => {
   // First process function calls and results
   const processFunctionBlocks = (text: string) => {
-    const functionCallRegex = /\[Function call: ([\s\S]*?)\]/g;
-    const functionResultRegex = /\[Function result: ([\s\S]*?)\]/g;
+    // Old format regex
+    const oldFunctionCallRegex = /\[Function call: ([\s\S]*?)\]/g;
+    const oldFunctionResultRegex = /\[Function result: ([\s\S]*?)\]/g;
+    
+    // New format regex with tags
+    const newFunctionCallRegex = /<function_call>([\s\S]*?)<\/function_call>/g;
+    const newFunctionResultRegex = /<function_result>([\s\S]*?)<\/function_result>/g;
     
     const functionCalls: {type: 'call' | 'result', content: string, position: number}[] = [];
     
-    // Find all function calls
+    // Find all function calls (old format)
     let match;
-    while ((match = functionCallRegex.exec(text)) !== null) {
+    while ((match = oldFunctionCallRegex.exec(text)) !== null) {
       functionCalls.push({
         type: 'call',
         content: match[1],
-        position: match.index
+        position: match.index,
+        format: 'old',
+        fullMatch: match[0]
       });
     }
     
-    // Find all function results
-    while ((match = functionResultRegex.exec(text)) !== null) {
+    // Find all function results (old format)
+    while ((match = oldFunctionResultRegex.exec(text)) !== null) {
       functionCalls.push({
         type: 'result',
         content: match[1],
-        position: match.index
+        position: match.index,
+        format: 'old',
+        fullMatch: match[0]
+      });
+    }
+    
+    // Find all function calls (new format)
+    while ((match = newFunctionCallRegex.exec(text)) !== null) {
+      functionCalls.push({
+        type: 'call',
+        content: match[1],
+        position: match.index,
+        format: 'new',
+        fullMatch: match[0]
+      });
+    }
+    
+    // Find all function results (new format)
+    while ((match = newFunctionResultRegex.exec(text)) !== null) {
+      functionCalls.push({
+        type: 'result',
+        content: match[1],
+        position: match.index,
+        format: 'new',
+        fullMatch: match[0]
       });
     }
     
@@ -87,7 +118,13 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className = 
     );
     
     // Update position for next iteration
-    lastPosition = block.position + `[Function ${block.type}: ${block.content}]`.length;
+    // Calculate position based on format
+    const matchLength = block.fullMatch ? block.fullMatch.length : 
+      block.format === 'old' ? 
+        `[Function ${block.type}: ${block.content}]`.length : 
+        `<function_${block.type}>${block.content}</function_${block.type}>`.length;
+    
+    lastPosition = block.position + matchLength;
   });
   
   // Add any remaining text after the last function block

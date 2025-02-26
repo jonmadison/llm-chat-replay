@@ -70,10 +70,22 @@ const App = () => {
     const humanMsgs = text.split('**Human**:');
     
     const lines = text.split('\n');
-    if (lines.length > 0) {
-      const potentialTitle = lines[0].trim();
-      if (potentialTitle) {
-        setSubtitle(potentialTitle.replace(/^#+\s*/, ''));
+    
+    // Check for a specific "#Title:" format first
+    const titleMatch = text.match(/^#\s*Title:\s*(.+?)$/m);
+    if (titleMatch && titleMatch[1]) {
+      setSubtitle(titleMatch[1].trim());
+    } else {
+      // Fall back to using the first message if no specific title is found
+      const humanMsgMatch = text.match(/\*\*Human\*\*:\s*(.+?)(?=\n|$)/s);
+      if (humanMsgMatch && humanMsgMatch[1]) {
+        setSubtitle(humanMsgMatch[1].trim());
+      } else if (lines.length > 0) {
+        // If all else fails, use the first line as before
+        const potentialTitle = lines[0].trim();
+        if (potentialTitle) {
+          setSubtitle(potentialTitle.replace(/^#+\s*/, ''));
+        }
       }
     }
     
@@ -226,10 +238,10 @@ const App = () => {
           </div>
           {hasTranscript && (
             <button 
-              className="px-3 py-1.5 text-sm bg-[#FF9CA6] hover:bg-[#FF9CA6]/80 text-[#222] rounded"
+              className="px-3 py-1.5 text-sm bg-[#FFddA6] hover:bg-[#FF9CA6]/80 text-[#222] rounded"
               onClick={resetAll}
             >
-              Reset
+              New Transcript
             </button>
           )}
         </div>

@@ -19,33 +19,66 @@ const StreamingText = ({ content, onComplete, speed = 1, isPlaying }: StreamingT
 
   // Special processing for function calls and results
   const processFunctionBlocks = (text: string) => {
-    const functionCallRegex = /\[Function call: ([\s\S]*?)\]/g;
-    const functionResultRegex = /\[Function result: ([\s\S]*?)\]/g;
+    // Old format regex
+    const oldFunctionCallRegex = /\[Function call: ([\s\S]*?)\]/g;
+    const oldFunctionResultRegex = /\[Function result: ([\s\S]*?)\]/g;
+    
+    // New format regex with tags
+    const newFunctionCallRegex = /<function_call>([\s\S]*?)<\/function_call>/g;
+    const newFunctionResultRegex = /<function_result>([\s\S]*?)<\/function_result>/g;
     
     // Replace functions with placeholders to avoid them getting split by sentence splitter
     let processedText = text;
     const functionBlocks: {type: 'call' | 'result', content: string, placeholder: string}[] = [];
     let blockCount = 0;
     
-    // Process function calls
-    processedText = processedText.replace(functionCallRegex, (match, content) => {
+    // Process old format function calls
+    processedText = processedText.replace(oldFunctionCallRegex, (match, content) => {
       const placeholder = `__FUNCTION_CALL_${blockCount}__`;
       functionBlocks.push({
         type: 'call',
         content,
-        placeholder
+        placeholder,
+        format: 'old'
       });
       blockCount++;
       return placeholder;
     });
     
-    // Process function results
-    processedText = processedText.replace(functionResultRegex, (match, content) => {
+    // Process old format function results
+    processedText = processedText.replace(oldFunctionResultRegex, (match, content) => {
       const placeholder = `__FUNCTION_RESULT_${blockCount}__`;
       functionBlocks.push({
         type: 'result',
         content,
-        placeholder
+        placeholder,
+        format: 'old'
+      });
+      blockCount++;
+      return placeholder;
+    });
+    
+    // Process new format function calls
+    processedText = processedText.replace(newFunctionCallRegex, (match, content) => {
+      const placeholder = `__FUNCTION_CALL_${blockCount}__`;
+      functionBlocks.push({
+        type: 'call',
+        content,
+        placeholder,
+        format: 'new'
+      });
+      blockCount++;
+      return placeholder;
+    });
+    
+    // Process new format function results
+    processedText = processedText.replace(newFunctionResultRegex, (match, content) => {
+      const placeholder = `__FUNCTION_RESULT_${blockCount}__`;
+      functionBlocks.push({
+        type: 'result',
+        content,
+        placeholder,
+        format: 'new'
       });
       blockCount++;
       return placeholder;
@@ -183,9 +216,14 @@ const StreamingText = ({ content, onComplete, speed = 1, isPlaying }: StreamingT
   const restoreFunctionBlocks = (text: string) => {
     let restoredText = text;
     functionBlocks.forEach(block => {
+      // Format depends on the original format
+      const formattedBlock = block.format === 'old' ?
+        `[Function ${block.type}: ${block.content}]` :
+        `<function_${block.type}>${block.content}</function_${block.type}>`;
+      
       restoredText = restoredText.replace(
         block.placeholder,
-        `[Function ${block.type}: ${block.content}]`
+        formattedBlock
       );
     });
     return restoredText;
