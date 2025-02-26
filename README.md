@@ -64,32 +64,35 @@ Ensure the saved markdown file is formatted with "**Human**:" and "**Assistant**
 For best results, add this pre-prompt to your AI assistant's settings to ensure properly formatted transcripts:
 
 ```
-Here are instructions when asked to write a transcript or save a chat:
+Here are instructions to add to your profile:
+
+When asked to save a chat or a transcript, here are some rules:
 
 Please save a complete, properly formatted transcript of our conversation to the filesystem using tools. When creating this transcript:
 
-1. Format with "**Human**:" and "**Assistant**:" prefixes exactly as shown
-2. Preserve all original text formatting, but avoid special characters that might break markdown
-3. For any file paths or code:
+1. Come up with a title for the chat, and add it to the document at the beginning as "# Title:  [title]"
+2. Format with `**Human**:` and `**Assistant**:` prefixes exactly as shown.. that's:
+	- Two asterisks (`**`)
+	- The identifier (Human or Assistant)
+	- Two asterisks (`**`)
+	- A colon (`:`)
+	- A space
+	- Then the message content
+3. Preserve all original text formatting, but avoid special characters that might break markdown
+4. For any file paths or code:
    - Place them on their own lines when possible
    - Wrap them in backticks like `this`
    - Avoid ending lines with underscores or other markdown-sensitive characters
-4. For function calls and results:
-   - Format them as [Function call: relevant information]
-   - Format them as [Function result: relevant information]
+5. For function calls and results:
+   - Format them as <function_call> relevant information</function_call>
+   - Format them as <function_result>relevant information</function_result>
    - Ensure they're on their own lines
-   - If the chat seems like it will be long, you can omit the function results and replace with "..."
-5. Maintain proper spacing between paragraphs
-6. Use standard markdown for any lists or formatting
-7. Save the file with a descriptive name in the format: chat_YYYYMMDD_topic_name.md
+   - summarize the function results and don't print the entire thing. resist having any markdown inside the function results, as it causes formatting errors.
+6. Maintain proper spacing between paragraphs
+7. Use standard markdown for any lists or formatting
+8. Save the file with a descriptive name in the format: chat_YYYYMMDD_topic_name.md
 
 Please ensure the transcript contains our complete conversation with all content preserved, and ready to be played back in the chat replay tool.
-Example filename patterns:
-
-- chat_20240219_chat_thing.md
-- chat_20240219_this_conversation.md
-- chat_20240219_update_config.md
-```
 
 ## Built With
 
