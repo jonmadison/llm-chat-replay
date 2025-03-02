@@ -3,7 +3,33 @@
 @tailwind utilities;
 
 @layer base {
+  html, body, #root {
+    @apply h-full overflow-hidden;
+  }
+  
   body {
     @apply bg-neutral-900;
   }
+  
+  #root {
+    @apply h-full overflow-hidden;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
 }

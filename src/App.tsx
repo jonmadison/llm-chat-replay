@@ -67,8 +67,6 @@ const App = () => {
 
   const parseTranscript = (text: string) => {
     const parsedMessages: Message[] = [];
-    const humanMsgs = text.split('**Human**:');
-    
     const lines = text.split('\n');
     
     // Check for a specific "#Title:" format first
@@ -89,28 +87,85 @@ const App = () => {
       }
     }
     
-    humanMsgs.slice(1).forEach(chunk => {
-      const parts = chunk.split('**Assistant**:');
-      if (parts.length === 2) {
-        parsedMessages.push({
-          speaker: 'Human',
-          content: parts[0].trim(),
-          isVisible: false,
-          isComplete: false
-        });
-        
-        parsedMessages.push({
-          speaker: 'Assistant',
-          content: parts[1].split('**Human**:')[0].trim(),
-          isVisible: false,
-          isComplete: false
-        });
+    // Track code block state to ignore Human/Assistant tags inside code blocks
+    let inCodeBlock = false;
+    let currentMessage: Message | null = null;
+    let buffer = '';
+    
+    // Process the file line by line
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Check for code block markers (backticks)
+      if (line.trim().startsWith('```') || line.trim().match(/^`{3,}[^`]*$/)) {
+        inCodeBlock = !inCodeBlock;
+        buffer += line + '\n';
+        continue;
       }
-    });
+      
+      // Process message markers only if not in a code block
+      if (!inCodeBlock) {
+        if (line.trim().startsWith('**Human**:')) {
+          // If we have a previous message, save it before starting a new one
+          if (currentMessage) {
+            currentMessage.content = buffer.trim();
+            parsedMessages.push(currentMessage);
+          }
+          
+          // Start a new Human message
+          currentMessage = {
+            speaker: 'Human',
+            content: '',
+            isVisible: false,
+            isComplete: false
+          };
+          
+          // Extract content after the speaker marker
+          buffer = line.replace(/^\s*\*\*Human\*\*:\s*/, '') + '\n';
+          continue;
+        }
+        
+        if (line.trim().startsWith('**Assistant**:')) {
+          // If we have a previous message, save it before starting a new one
+          if (currentMessage) {
+            currentMessage.content = buffer.trim();
+            parsedMessages.push(currentMessage);
+          }
+          
+          // Start a new Assistant message
+          currentMessage = {
+            speaker: 'Assistant',
+            content: '',
+            isVisible: false,
+            isComplete: false
+          };
+          
+          // Extract content after the speaker marker
+          buffer = line.replace(/^\s*\*\*Assistant\*\*:\s*/, '') + '\n';
+          continue;
+        }
+      }
+      
+      // Add the line to the current buffer
+      buffer += line + '\n';
+    }
+    
+    // Add the last message if there is one
+    if (currentMessage) {
+      currentMessage.content = buffer.trim();
+      parsedMessages.push(currentMessage);
+    }
 
     setMessages(parsedMessages);
     setHasTranscript(true);
     clearPlayback();
+    
+    // Auto-start by showing the first message if it exists
+    if (parsedMessages.length > 0) {
+      setMessages(prev => prev.map((msg, idx) => 
+        idx === 0 ? { ...msg, isVisible: true } : msg
+      ));
+    }
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -229,35 +284,47 @@ const App = () => {
   }, [currentMessageIndex, messages.length]);
 
   return (
-    <div className="min-h-screen bg-[#5F728C] font-libre">
-      <div className="max-w-4xl mx-auto p-4">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h1 className="text-neutral-50 text-xl font-medium">LLM Chat Replay</h1>
-            <p className="text-neutral-200 text-sm">{subtitle}</p>
+    <div className="h-screen bg-[#eee] font-libre flex flex-col overflow-hidden">
+      {/* Main layout container */}
+      <div className="relative h-[95%] w-full max-w-4xl mx-auto pb-6">
+        {/* Header  */}
+        <div className="absolute top-0 left-0 right-0 h-24 z-10 pointer-events-none bg-gradient-to-b from-[#eee] via-[#eee]/80 to-[#eee]/20"></div>
+        
+        {/* Footer  */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 z-10 pointer-events-none bg-transparent"></div>
+        
+        {/* Navigation header */}
+        <nav className="absolute top-0 left-0 right-0 z-20 pt-4 px-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-neutral-600 text-xl font-medium">LLM Chat Replay</h1>
+              <p className="text-neutral-600 text-sm">{subtitle}</p>
+            </div>
+            {hasTranscript && (
+              <button 
+                className="px-3 py-1.5 text-sm bg-gradient-to-b from-[#8FD7B4] to-[#8FD7B4]/60 rounded-xl shadow-sm hover:bg-[#8FD7B4]/10 text-[#222] h-10"
+                onClick={resetAll}
+              >
+                New Transcript
+              </button>
+            )}
           </div>
-          {hasTranscript && (
-            <button 
-              className="px-3 py-1.5 text-sm bg-[#FFddA6] hover:bg-[#FF9CA6]/80 text-[#222] rounded"
-              onClick={resetAll}
-            >
-              New Transcript
-            </button>
-          )}
-        </div>
-
+        </nav>
+        
+        {/* Chat container */}
         <div 
           ref={chatContainerRef}
           onScroll={handleScroll}
-          className={`h-[70vh] rounded-lg border border-transparent bg-transparent overflow-y-auto mb-4 relative
-            ${!hasTranscript ? 'flex items-center justify-center' : ''}`}
+          className={`absolute inset-0 overflow-y-auto px-8 ${!hasTranscript ? 'flex items-center justify-center' : ''}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleFileDrop}
+          style={{ paddingTop: '110px', paddingBottom: '150px', maxHeight: '85vh' }}
         >
           {isDragging && !hasTranscript && (
-            <div className="absolute inset-0 bg-emerald-500/20 border-2 border-dashed border-emerald-500 rounded-lg pointer-events-none" />
+            <div className="absolute inset-0 mt-16 mb-16 mx-4 bg-emerald-500/20 border-2 border-dashed border-emerald-500 rounded-lg pointer-events-none" />
           )}
+          
           {!hasTranscript ? (
             <div className="text-center">
               <input
@@ -276,7 +343,7 @@ const App = () => {
               </button>
             </div>
           ) : (
-            <div className="p-4 space-y-4 pb-20">
+            <div className="space-y-4">
               {messages.map((message, index) => (
                 message.isVisible && (
                   <div
@@ -286,8 +353,8 @@ const App = () => {
                     <div
                       className={`max-w-[80%] rounded-chat px-6 py-3 ${
                         message.speaker === "Human"
-                          ? "bg-[#ddd] text-[#222]"
-                          : "bg-[#efffFF] text-[#222]"
+                          ? "shadow-md bg-gradient-to-b from-[#938ac1]/70 to-[#938ac1]/25 text-[#222]"
+                          : "shadow-sm bg-gradient-to-b from-[#f59e0b]/20 to-yellow-400/50 text-[#222]"
                       }`}
                     >
                       <div className={`text-xs mb-1 font-medium ${
@@ -315,75 +382,77 @@ const App = () => {
             </div>
           )}
         </div>
-
+        
+        {/* Controls section */}
         {hasTranscript && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={progress || 0}
-                onChange={handleProgressChange}
-                className="flex-grow h-1 bg-[#2E3941] rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none"
-              />
-            </div>
+          <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-8">
+            <div className="bg-white/30 backdrop-blur-sm rounded-lg p-4 pt-6 max-w-xl mx-auto">
+              <div className="flex items-center gap-2 mb-4">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={progress || 0}
+                  onChange={handleProgressChange}
+                  className="flex-grow h-1 bg-neutral-400 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:bg-yellow-400 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none"
+                />
+              </div>
+              <div className="flex justify-center items-center gap-4">
+                <button 
+                  onClick={jumpToStart}
+                  className="p-2 text-neutral-600 hover:text-neutral-800"
+                  aria-label="Skip to beginning"
+                >
+                  <SkipBack size={20} />
+                </button>
+                
+                <button 
+                  onClick={() => handleSpeedChange(Math.max(0.5, playbackSpeed / 2))}
+                  className="p-2 text-neutral-600 hover:text-neutral-800 disabled:opacity-50"
+                  disabled={playbackSpeed <= 0.5}
+                >
+                  <Rewind size={20} />
+                </button>
 
-            <div className="flex justify-center items-center gap-4">
-              <button 
-                onClick={jumpToStart}
-                className="p-2 text-neutral-200 hover:text-white"
-                aria-label="Skip to beginning"
-              >
-                <SkipBack size={20} />
-              </button>
-              
-              <button 
-                onClick={() => handleSpeedChange(Math.max(0.5, playbackSpeed / 2))}
-                className="p-2 text-neutral-200 hover:text-white disabled:opacity-50"
-                disabled={playbackSpeed <= 0.5}
-              >
-                <Rewind size={20} />
-              </button>
+                <button
+                  onClick={togglePlayback}
+                  className="px-6 py-2 bg-neutral-600 hover:bg-neutral-700 text-white rounded-md flex items-center gap-2"
+                >
+                  {isPlaying ? (
+                    <>
+                      <PauseIcon size={16} />
+                      Pause
+                    </>
+                  ) : (
+                    <>
+                      <PlayIcon size={16} />
+                      Play
+                    </>
+                  )}
+                </button>
 
-              <button
-                onClick={togglePlayback}
-                className="px-6 py-2 bg-[#2E3941] hover:bg-[#3a4950] text-white rounded-md flex items-center gap-2"
-              >
-                {isPlaying ? (
-                  <>
-                    <PauseIcon size={16} />
-                    Pause
-                  </>
-                ) : (
-                  <>
-                    <PlayIcon size={16} />
-                    Play
-                  </>
-                )}
-              </button>
+                <button 
+                  onClick={() => handleSpeedChange(Math.min(4, playbackSpeed * 2))}
+                  className="p-2 text-neutral-600 hover:text-neutral-800 disabled:opacity-50"
+                  disabled={playbackSpeed >= 4}
+                >
+                  <FastForward size={20} />
+                </button>
+                
+                <button 
+                  onClick={jumpToEnd}
+                  className="p-2 text-neutral-600 hover:text-neutral-800"
+                  aria-label="Skip to end"
+                >
+                  <SkipForward size={20} />
+                </button>
+              </div>
 
-              <button 
-                onClick={() => handleSpeedChange(Math.min(4, playbackSpeed * 2))}
-                className="p-2 text-neutral-200 hover:text-white disabled:opacity-50"
-                disabled={playbackSpeed >= 4}
-              >
-                <FastForward size={20} />
-              </button>
-              
-              <button 
-                onClick={jumpToEnd}
-                className="p-2 text-neutral-200 hover:text-white"
-                aria-label="Skip to end"
-              >
-                <SkipForward size={20} />
-              </button>
-            </div>
-
-            <div className="flex justify-center">
-              <span className="text-neutral-200 text-sm">
-                Speed: {playbackSpeed}x
-              </span>
+              <div className="flex justify-center mt-2">
+                <span className="text-neutral-600 text-sm">
+                  Speed: {playbackSpeed}x
+                </span>
+              </div>
             </div>
           </div>
         )}
