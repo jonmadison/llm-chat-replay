@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { PlayIcon, PauseIcon, Rewind, FastForward, Upload, SkipBack, SkipForward } from 'lucide-react'
+import { MdOutlineAutorenew } from 'react-icons/md'
 import MarkdownContent from './components/MarkdownContent'
 import StreamingText from './components/StreamingText'
 import SpeakerIcon from './components/SpeakerIcon'
@@ -302,10 +303,12 @@ const App = () => {
             </div>
             {hasTranscript && (
               <button 
-                className="px-3 py-1.5 text-sm bg-gradient-to-b from-[#8FD7B4] to-[#8FD7B4]/60 rounded-xl shadow-sm hover:bg-[#8FD7B4]/10 text-[#222] h-10"
+                className="text-neutral-600 hover:text-neutral-400 transition-colors cursor-pointer"
                 onClick={resetAll}
+                aria-label="Load new transcript"
+                title="Load new transcript"
               >
-                New Transcript
+                <MdOutlineAutorenew size={24} />
               </button>
             )}
           </div>
