@@ -61,11 +61,10 @@ Ensure the saved markdown file is formatted with "**Human**:" and "**Assistant**
 
 #### Pre-prompt for Consistent Transcript Formatting
 
-For best results, add this pre-prompt to your AI assistant's settings to ensure properly formatted transcripts:
+For best results, add this pre-prompt to your AI assistant's settings (`.clinerules`, etc.) to ensure properly formatted transcripts:
 
 ```
-Here are instructions to add to your profile:
-
+### Chat Transcripts
 When asked to save a chat or a transcript, here are some rules:
 
 Please save a complete, properly formatted transcript of our conversation to the filesystem using tools. When creating this transcript:
