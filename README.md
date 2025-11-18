@@ -65,7 +65,7 @@ For best results, add this pre-prompt to your AI assistant's settings (`.clineru
 
 ```
 ### Chat Transcripts
-When asked to save a chat or a transcript, here are some rules:
+When asked to save a chat or a transcript, here are some rules that will allow you to replay chat in the LLM chat replay tool.
 
 Please save a complete, properly formatted transcript of our conversation to the filesystem using tools. When creating this transcript:
 
