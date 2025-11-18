@@ -93,6 +93,7 @@ Please save a complete, properly formatted transcript of our conversation to the
 8. Save the file with a descriptive name in the format: chat_YYYYMMDD_topic_name.md
 
 Please ensure the transcript contains our complete conversation with all content preserved, and ready to be played back in the chat replay tool.
+```
 
 ## Built With
 
